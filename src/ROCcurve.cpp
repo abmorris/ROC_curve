@@ -100,19 +100,21 @@ int main(int argc, char* argv[])
 {
   using namespace boost::program_options;
   options_description desc("Allowed options",120);
+  std::string exampleSfile = "root://eoslhcb.cern.ch//eos/lhcb/user/a/admorris/phiKK/ntuples/BsphiKK_MC_mva.root";
+  std::string exampleBfile = "root://eoslhcb.cern.ch//eos/lhcb/user/a/admorris/phiKK/ntuples/BsphiKK_sideband_mva.root";
   std::string Sfile, Bfile, cuts, weight, expr, blurb, plot, comp;
   double xmin, xmax, ymin, ymax, varmin, varmax, dsigeff, dbkgrej;
   int nsamples;
   desc.add_options()
     ("help,H" ,                                                                              "produce help message"                                            )
     ("blurb"  , value<std::string>(&blurb   )                                              , "blurb text"                                                      )
-    ("expr"   , value<std::string>(&expr    )->default_value("mlp>{}"                     ), "cut expression. '{}' will be substituted with the variable value")
+    ("expr"   , value<std::string>(&expr    )->default_value("bdt>{}"                     ), "cut expression. '{}' will be substituted with the variable value")
     ("comp"   , value<std::string>(&comp    )                                              , "optional comparison expression to draw as a single point"        )
-    ("varmax" , value<double     >(&varmax  )->default_value(1.0                          ), "variable upper limit"                                            )
-    ("varmin" , value<double     >(&varmin  )->default_value(0.0                          ), "variable lower limit"                                            )
+    ("varmax" , value<double     >(&varmax  )->default_value(0.3                          ), "variable upper limit"                                            )
+    ("varmin" , value<double     >(&varmin  )->default_value(-0.1                         ), "variable lower limit"                                            )
     ("samples", value<int        >(&nsamples)->default_value(10                           ), "number of samples"                                               )
-    ("Sfile"  , value<std::string>(&Sfile   )->default_value("ntuples/BsphiKK_MC_mva.root"), "signal file"                                                     )
-    ("Bfile"  , value<std::string>(&Bfile   )->default_value("ntuples/LbphiKp_MC_mva.root"), "background file"                                                 )
+    ("Sfile"  , value<std::string>(&Sfile   )->default_value(exampleSfile), "signal file"                                                     )
+    ("Bfile"  , value<std::string>(&Bfile   )->default_value(exampleBfile), "background file"                                                 )
     ("cuts"   , value<std::string>(&cuts    )->default_value(""                           ), "optional cuts"                                                   )
     ("plot"   , value<std::string>(&plot    )->default_value("roc_curve"                  ), "output plot filename"                                            )
     ("xmax"   , value<double     >(&xmax    )->default_value(1.0                          ), "x axis upper limit"                                              )
@@ -125,10 +127,14 @@ int main(int argc, char* argv[])
   variables_map vmap;
   store(parse_command_line(argc, argv, desc), vmap);
   notify(vmap);
-  if (vmap.count("help"))
+  if(vmap.count("help"))
   {
     std::cout << desc << std::endl;
     return 1;
+  }
+  if(argc==1)
+  {
+    std::cout << "No argumnets given. Running example.\nFor help call\n\t" << argv[0] << " --help" << std::endl;
   }
   ROCcurve(Sfile, Bfile, xmin, xmax, ymin, ymax, expr, varmin, varmax, cuts, weight, blurb, nsamples, plot, comp, dsigeff, dbkgrej);
   return 0;
